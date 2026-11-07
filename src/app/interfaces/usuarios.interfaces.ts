@@ -19,31 +19,35 @@ export interface DatosAdministrador {
 }
 // Interfaz datos de usuario de maestro
 export interface DatosMaestro {
-  id: number;
+  rol: string;
   id_trabajador: number;
   first_name: string;
   last_name: string;
   email: string;
-  fecha_nacimiento: string;
+  password: string;
+  confirmar_password: string;
+  fecha_nacimiento: any;
   telefono: string;
   rfc: string;
   cubiculo: string;
-  area_investigacion: number;
+  area_investigacion: string;
+  materias_json: string[];
 }
 
 // Interfaz datos de usuario de alumno
 export interface DatosAlumno {
-  id: number;
+  rol: string;
   matricula: number;
   first_name: string;
   last_name: string;
   email: string;
-  fecha_nacimiento: string;
+  password: string;
+  confirmar_password: string;
+  fecha_nacimiento: any;
   curp: string;
   rfc: string;
   edad: number;
   telefono: string;
   ocupacion: string;
 }
-
 
