@@ -22,7 +22,6 @@ export class RegistroAdmin implements OnInit {
   //Inyectar el servicio de administradores para poder registrar y actualizar los datos del administrador
   private administradoresService = inject(AdministradoresService);
 
-
   //Declarar las variables para el formulario de registro
   public admin: any = {};
   public errors: any = {};
@@ -38,8 +37,9 @@ export class RegistroAdmin implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
-    //Si el rol es administrador, se inicializa el objeto admin con los datos del usuario
+    //Se inicializa el objeto admin con el esquema vacío y se le asigna el rol
     this.admin = this.administradoresService.esquemaAdmin();
+    this.admin.rol = this.rol;
     console.log('Datos del administrador:', this.admin);
   }
 
@@ -68,7 +68,7 @@ export class RegistroAdmin implements OnInit {
   }
 
   public registrar(){
-    // Lógica para validar si el usuario administrador trae datos o no en los campos del formulario
+    // Validar los datos del formulario con el servicio
     this.errors = {};
     this.errors = this.administradoresService.validarAdmin(this.admin, this.editar);
 
@@ -79,8 +79,23 @@ export class RegistroAdmin implements OnInit {
       return;
     }
 
-    //Lógica para registrar o actualizar los datos del administrador
-    // TODO: Aquí se debe implementar la lógica para registrar o actualizar los datos del administrador en el backend, utilizando el servicio de administradores.
+    //La edad llega como texto desde el input con máscara, se convierte a number
+    const datos = { ...this.admin, edad: Number(this.admin.edad) };
+
+    // Petición POST al backend para registrar al administrador
+    this.administradoresService.registrarAdmin(datos).subscribe({
+      next: (response) => {
+        console.log('Administrador registrado:', response);
+        alert('Administrador registrado correctamente');
+        //Se limpia el formulario
+        this.admin = this.administradoresService.esquemaAdmin();
+        this.admin.rol = this.rol;
+      },
+      error: (error) => {
+        console.error('Error al registrar administrador:', error);
+        alert(error.error?.message || 'No se pudo registrar al administrador');
+      },
+    });
 
   }
 

@@ -79,12 +79,38 @@ export class RegistroAlumnos implements OnInit {
       return;
     }
 
-    //Los inputs con máscara entregan texto, aquí los convertimos a number
-    this.alumno.matricula = Number(this.alumno.matricula);
-    this.alumno.edad = Number(this.alumno.edad);
+    //Los inputs con máscara entregan texto: se convierten a number y se da formato a la fecha
+    const datos = {
+      ...this.alumno,
+      matricula: Number(this.alumno.matricula),
+      edad: Number(this.alumno.edad),
+      fecha_nacimiento: this.formatearFecha(this.alumno.fecha_nacimiento),
+    };
 
-    // TODO: Aquí se debe implementar la lógica para registrar los datos del alumno en el backend.
-    console.log('Alumno válido:', this.alumno);
+    // Petición POST al backend para registrar al alumno
+    this.alumnosService.registrarAlumno(datos).subscribe({
+      next: (response) => {
+        console.log('Alumno registrado:', response);
+        alert('Alumno registrado correctamente');
+        //Se limpia el formulario
+        this.alumno = this.alumnosService.esquemaAlumno();
+        this.alumno.rol = this.rol;
+      },
+      error: (error) => {
+        console.error('Error al registrar alumno:', error);
+        alert(error.error?.message || 'No se pudo registrar al alumno');
+      },
+    });
+  }
+
+  //Convierte la fecha del datepicker (objeto Date) a texto AAAA-MM-DD, que es el formato que espera el backend
+  private formatearFecha(fecha: any): string {
+    if (fecha instanceof Date) {
+      const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+      const dia = String(fecha.getDate()).padStart(2, '0');
+      return `${fecha.getFullYear()}-${mes}-${dia}`;
+    }
+    return fecha;
   }
 
   public actualizar() {
