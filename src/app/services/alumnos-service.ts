@@ -2,11 +2,30 @@ import { inject, Injectable } from '@angular/core';
 import { ErrorsService } from './tools/errors-service';
 import { ValidatorService } from './tools/validator-service';
 import { DatosAlumno } from '../interfaces/usuarios.interfaces';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { AuthService } from './auth-service';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class AlumnosService {
+  private http = inject(HttpClient);
+  private authService = inject(AuthService);
   private validatorService = inject(ValidatorService);
   private errorService = inject(ErrorsService);
+
+  // Headers de la petición: si hay sesión iniciada se envía el token
+  private getAuthHeaders(): HttpHeaders {
+    const token = this.authService.getSessionToken();
+    return token
+      ? new HttpHeaders({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` })
+      : new HttpHeaders({ 'Content-Type': 'application/json' });
+  }
+
+  // Petición POST para registrar un alumno en el backend
+  public registrarAlumno(data: any): Observable<any> {
+    return this.http.post<any>(`${environment.url_api}/alumnos/`, data, { headers: this.getAuthHeaders() });
+  }
 
   public esquemaAlumno(): DatosAlumno {
     return {

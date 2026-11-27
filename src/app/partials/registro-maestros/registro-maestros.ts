@@ -119,11 +119,37 @@ export class RegistroMaestros implements OnInit {
       return;
     }
 
-    //Los inputs con máscara entregan texto, aquí lo convertimos a number
-    this.maestro.id_trabajador = Number(this.maestro.id_trabajador);
+    //Los inputs con máscara entregan texto: se convierte a number y se da formato a la fecha
+    const datos = {
+      ...this.maestro,
+      id_trabajador: Number(this.maestro.id_trabajador),
+      fecha_nacimiento: this.formatearFecha(this.maestro.fecha_nacimiento),
+    };
 
-    // TODO: Aquí se debe implementar la lógica para registrar los datos del maestro en el backend.
-    console.log('Maestro válido:', this.maestro);
+    // Petición POST al backend para registrar al maestro
+    this.maestrosService.registrarMaestro(datos).subscribe({
+      next: (response) => {
+        console.log('Maestro registrado:', response);
+        alert('Maestro registrado correctamente');
+        //Se limpia el formulario
+        this.maestro = this.maestrosService.esquemaMaestro();
+        this.maestro.rol = this.rol;
+      },
+      error: (error) => {
+        console.error('Error al registrar maestro:', error);
+        alert(error.error?.message || 'No se pudo registrar al maestro');
+      },
+    });
+  }
+
+  //Convierte la fecha del datepicker (objeto Date) a texto AAAA-MM-DD, que es el formato que espera el backend
+  private formatearFecha(fecha: any): string {
+    if (fecha instanceof Date) {
+      const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+      const dia = String(fecha.getDate()).padStart(2, '0');
+      return `${fecha.getFullYear()}-${mes}-${dia}`;
+    }
+    return fecha;
   }
 
   public actualizar() {
